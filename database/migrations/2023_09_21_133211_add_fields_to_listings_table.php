@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::table('listings', function (Blueprint $table) {
             $table->unsignedTinyInteger('beds');
             $table->unsignedTinyInteger('baths');
-            $table->unsignedTinyInteger('area');
+            $table->unsignedSmallInteger('area');
 
             $table->tinyText('city');
             $table->tinyText('code');
-            $table->tinyText('strete');
+            $table->tinyText('street');
             $table->tinyText('street_nr');
 
             $table->unsignedInteger('price');
@@ -36,12 +36,11 @@ return new class extends Migration
         Schema::dropColumns('listings',[
             'beds',
             'baths',
-
             'area',
             'city',
             'code',
             'street',
-            'street,nr',
+            'street_nr',
             'price'
         ]);
     }
