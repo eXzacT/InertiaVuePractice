@@ -4,13 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Listing;
-use GuzzleHttp\Promise\Create;
 
 class ListingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    
+    //we can apply middleware in the constructor or in routes
+    public function __construct()
+    {
+        $this->middleware('auth')->except('index','show');
+    }
+
     public function index()
     {
         return inertia(
@@ -21,17 +24,11 @@ class ListingController extends Controller
         );
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return inertia('Listing/Create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         Listing::create(
@@ -51,9 +48,6 @@ class ListingController extends Controller
             ->with('success','Listing was created successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Listing $listing)
     {
         return inertia(
