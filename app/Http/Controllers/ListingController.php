@@ -12,26 +12,35 @@ class ListingController extends Controller
     public function __construct()
     {
         $this->middleware('auth')->except('index','show');
+        $this->authorizeResource(Listing::class,'listing');
     }
 
-    public function index()
-    {
+    public function index(Request $request)
+    {   
+        $filters=$request->only([
+            'priceFrom','priceTo','beds','baths','areaFrom','areaTo'
+        ]);
+
         return inertia(
             'Listing/Index',
-            [
-                'listings'=>Listing::all()
+            [   
+                'filters'=>$filters,
+                'listings'=>Listing::latest()
+                    ->filter($filters)
+                    ->paginate(10)
+                    ->withQueryString()
             ]
         );
     }
 
     public function create()
-    {
+    {   
         return inertia('Listing/Create');
     }
 
     public function store(Request $request)
     {
-        Listing::create(
+        $request->user()->listings()->create(
             $request->validate([
                 'beds'=>'required|integer|min:0|max:20',
                 'baths'=>'required|integer|min:0|max:20',
@@ -49,7 +58,9 @@ class ListingController extends Controller
     }
 
     public function show(Listing $listing)
-    {
+    {   
+        //$this->authorize('view',$listing);
+        
         return inertia(
             'Listing/Show',
             [
@@ -85,12 +96,5 @@ class ListingController extends Controller
         
         return redirect()->route('listing.index')
             ->with('success','Listing was changed successfully!');
-    }
-
-    public function destroy(Listing $listing)
-    {
-        $listing->delete();
-        return redirect()->back()
-            ->with('success','Listing was deleted successfully!');
     }
 }
