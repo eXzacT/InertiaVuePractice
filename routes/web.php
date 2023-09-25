@@ -26,13 +26,12 @@ Route::get('/hello',[IndexController::class, 'show'])
 
 //ListingController
 Route::resource('listing',ListingController::class)
-->except('destroy');
+->only(['index','show']);
 
 //we can apply middleware in the constructor or in routes
 /* ->only(['create','store','edit','update','destroy'])->middleware('auth');
 Route::resource('listing',ListingController::class)
 ->except(['create','store','edit','update','destroy']); */
-
 
 //AuthController
 Route::get('login',[AuthController::class, 'create'])
@@ -51,6 +50,10 @@ Route::prefix('realtor')
     ->name('realtor.')
     ->middleware('auth')
     ->group(function (){
+        Route::name('listing.restore')
+            ->put('listing/{listing}/restore',[RealtorListingController::class,'restore'])
+            ->withTrashed();
         Route::resource('listing',RealtorListingController::class)
-        ->only(['index','destroy']);
+        ->except(['show'])
+        ->withTrashed();
     });
