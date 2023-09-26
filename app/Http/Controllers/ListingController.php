@@ -11,7 +11,7 @@ class ListingController extends Controller
     //we can apply middleware in the constructor or in routes
     public function __construct()
     {   
-        //for applying
+        //for applying said middleware
         //$this->middleware('auth')->except('index','show');
         $this->authorizeResource(Listing::class,'listing');
     }
@@ -37,6 +37,7 @@ class ListingController extends Controller
     public function show(Listing $listing)
     {   
         //$this->authorize('view',$listing);
+        $listing->load(['images']);
         
         return inertia(
             'Listing/Show',
