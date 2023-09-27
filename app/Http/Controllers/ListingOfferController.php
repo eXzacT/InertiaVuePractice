@@ -2,22 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Offer;
 use App\Models\Listing;
 use Illuminate\Http\Request;
+use App\Notifications\OfferMade;
 
 class ListingOfferController extends Controller
-{   
-    public function store(Listing $listing,Request $request){
+{
+    public function store(Listing $listing, Request $request)
+    {
+        $this->authorize('view', $listing);
 
-        //validate form
-        $validatedData = $request->validate([
-            'amount' => 'required|integer|min:1|max:20000000'
-        ]);
+        $offer = $listing->offers()->save(
+            Offer::make(
+                $request->validate([
+                    'amount' => 'required|integer|min:1|max:20000000'
+                ])
+            )->bidder()->associate($request->user())
+        );
+        $listing->owner->notify(
+            new OfferMade($offer)
+        );
 
-        // Create the new offer instance and associate the bidder
-        $listing->offers()->make($validatedData)
-            ->bidder()->associate($request->user())->save();
-
-        return redirect()->back()->with('success', 'Offer was successfully made!');
+        return redirect()->back()->with(
+            'success',
+            'Offer was made!'
+        );
     }
 }

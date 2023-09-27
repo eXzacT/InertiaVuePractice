@@ -23,11 +23,14 @@ class ListingPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Only owners of the listing can see the listing even if it was sold
      */
     public function view(?User $user, Listing $listing): bool
-    {
-        return true;
+    {   
+        if($listing->owner_id==$user?->id){
+            return true;
+        }
+        return $listing->sold_at==null;
     }
 
     /**
@@ -43,7 +46,8 @@ class ListingPolicy
      */
     public function update(User $user, Listing $listing): bool
     {
-        return ($listing->owner_id==$user->id);
+        return $listing->sold_at==null
+            &&($listing->owner_id==$user->id);
     }
 
     /**

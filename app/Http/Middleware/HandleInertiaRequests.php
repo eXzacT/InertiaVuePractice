@@ -40,10 +40,11 @@ class HandleInertiaRequests extends Middleware
             'flash'=>[
                 'success'=>$request->session()->get('success')
             ],
-            'user'=>$request->user()?[
-                'id'=>$request->user()->id,
-                'name'=>$request->user()->name,
-                'email'=>$request->user()->email
+            'user' => $request->user() ? [
+                'id' => $request->user()->id,
+                'name' => $request->user()->name,
+                'email' => $request->user()->email,
+                'notificationCount' => $request->user()->unreadNotifications()->count()
             ]:null
         ]);
     }
