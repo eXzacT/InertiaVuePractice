@@ -1,16 +1,17 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\ListingController;
+use App\Http\Controllers\UserAccountController;
 use App\Http\Controllers\ListingOfferController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\NotificationSeenController;
-use App\Http\Controllers\RealtorListingAcceptOfferController;
 use App\Http\Controllers\RealtorListingController;
+use App\Http\Controllers\NotificationSeenController;
 use App\Http\Controllers\RealtorListingImageController;
-use App\Http\Controllers\UserAccountController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RealtorListingAcceptOfferController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,11 +24,28 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+//REMINDER
+//we can apply middleware in the constructor or in routes
+/* ->only(['create','store','edit','update','destroy'])->middleware('auth');
+Route::resource('listing',ListingController::class)
+->except(['create','store','edit','update','destroy']); */
 
 //Index Controller
 Route::get('/',[IndexController::class, 'index']);
 Route::get('/hello',[IndexController::class, 'show'])
     ->middleware('auth');
+
+//User Controller
+Route::resource('user-account',UserAccountController::class)
+    ->only(['create','store']);
+
+//Auth Controller
+Route::get('login',[AuthController::class, 'create'])
+    ->name('login');
+Route::post('login',[AuthController::class, 'store'])
+    ->name('login.store');
+Route::delete('logout',[AuthController::class, 'destroy'])
+    ->name('logout');
 
 //Listing Controller
 Route::resource('listing',ListingController::class)
@@ -38,46 +56,55 @@ Route::resource('listing.offer',ListingOfferController::class)
     ->middleware('auth')
     ->only(['store']);
 
-//we can apply middleware in the constructor or in routes
-/* ->only(['create','store','edit','update','destroy'])->middleware('auth');
-Route::resource('listing',ListingController::class)
-->except(['create','store','edit','update','destroy']); */
-
-//Auth Controller
-Route::get('login',[AuthController::class, 'create'])
-->name('login');
-Route::post('login',[AuthController::class, 'store'])
-->name('login.store');
-Route::delete('logout',[AuthController::class, 'destroy'])
-->name('logout');
-
 //Notification Controller
 Route::resource('notification', NotificationController::class)
     ->middleware('auth')
     ->only('index');
 
+//NotificationSeen Controller
 Route::put('notification/{notification}/seen',NotificationSeenController::class)
     ->middleware('auth')
     ->name('notification.seen');
 
-//User Controller
-Route::resource('user-account',UserAccountController::class)
-->only(['create','store']);
+//EmailVerification Controller
+Route::prefix('email')
+    ->middleware('auth')
+    ->group(function (){
+        
+        //1. Route to website that informs the user they should be verified,
+        //this is automatically opened when user tries to do the action which needs the user to be registered first
+        //also user is redirected if he manually inputs the url but is already registered
+        Route::get('verify',[EmailVerificationController::class, 'index'])
+            ->name('verification.notice')
+            ->middleware('redirect.if.verified');
+
+        //2. Sending email verification when a user first registers
+        Route::get('verify/{id}/{hash}',[EmailVerificationController::class,'verify'])
+            ->middleware('signed')
+            ->name('verification.verify');
+
+        //3. Resending email verification
+        //we don't let the user manually enter this->Handler.php file
+        Route::post('verification-notification',[EmailVerificationController::class,'resend'])
+            ->middleware('throttle:6,1')
+            ->name('verification.send');
+});
+
 
 //Realtor Controller
 Route::prefix('realtor')
     ->name('realtor.')
-    ->middleware('auth')
+    ->middleware(['auth','verified'])
     ->group(function (){
-        Route::name('listing.restore')
-            ->put('listing/{listing}/restore',[RealtorListingController::class,'restore'])
-            ->withTrashed();
+        Route::put('listing/{listing}/restore',[RealtorListingController::class,'restore'])
+            ->withTrashed()
+            ->name('listing.restore');
         Route::resource('listing',RealtorListingController::class)
             ->withTrashed();
 
         Route::resource('listing.image',RealtorListingImageController::class)
             ->only(['create','store','destroy']);
 
-        Route::name('offer.accept')
-            ->put('offer/{offer}/accept',RealtorListingAcceptOfferController::class);
+        Route::put('offer/{offer}/accept',RealtorListingAcceptOfferController::class)
+            ->name('offer.accept');
     });

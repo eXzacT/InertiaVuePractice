@@ -20,7 +20,7 @@ class ListingController extends Controller
     public function index(Request $request)
     {   
         $filters=$request->only([
-            'priceFrom','priceTo','beds','baths','areaFrom','areaTo'
+            'priceFrom','priceTo','beds','baths','areaFrom','areaTo','by','order'
         ]);
 
         return inertia(
