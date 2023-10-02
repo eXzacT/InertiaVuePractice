@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ValidateListingRequest;
 use App\Models\Listing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,27 +23,18 @@ class RealtorListingController extends Controller
         );
     }
 
-    public function update(Request $request,Listing $listing)
-    {   
+    public function update(ValidateListingRequest $request,Listing $listing)
+    {
         $listing->update(
-            $request->validate([
-                'beds'=>'required|integer|min:0|max:20',
-                'baths'=>'required|integer|min:0|max:20',
-                'area'=>'required|integer|min:15|max:1500',
-                'city'=>'required',
-                'code'=>'required',
-                'street'=>'required',
-                'street_nr'=>'required|integer|min:1|max:200',
-                'price'=>'required|integer|min:1|max:20000000',
-            ])
+            $request->validated()
         );
-        
+
         return redirect()->route('realtor.listing.index')
             ->with('success','Listing was changed successfully!');
     }
 
     public function index(Request $request)
-    {   
+    {
         $filters=[
             'deleted'=>$request->boolean('deleted'),
             ...$request->only(['by','order'])
@@ -53,6 +45,7 @@ class RealtorListingController extends Controller
             ->withCount('images')
             ->withCount('offers')
             ->filter($filters)
+            ->latest()
             ->paginate(5)
             ->withQueryString();
 
@@ -72,25 +65,16 @@ class RealtorListingController extends Controller
     }
 
     public function create()
-    {   
+    {
         return inertia('Realtor/Create');
     }
 
-    public function store(Request $request)
+    public function store(ValidateListingRequest $request)
     {
         $request->user()->listings()->create(
-            $request->validate([
-                'beds'=>'required|integer|min:0|max:20',
-                'baths'=>'required|integer|min:0|max:20',
-                'area'=>'required|integer|min:15|max:1500',
-                'city'=>'required',
-                'code'=>'required',
-                'street'=>'required',
-                'street_nr'=>'required|integer|min:1|max:200',
-                'price'=>'required|integer|min:1|max:20000000',
-            ])
+            $request->validated()
         );
-        
+
         return redirect()->route('realtor.listing.index')
             ->with('success','Listing was created successfully!');
     }
@@ -104,7 +88,7 @@ class RealtorListingController extends Controller
 
     public function restore(Listing $listing){
         $listing->restore();
-        
+
         return redirect()->back()->with('success','Listing was successfully restored!');
     }
 }

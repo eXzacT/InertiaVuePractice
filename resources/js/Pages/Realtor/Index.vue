@@ -1,10 +1,10 @@
 <template>
   <h1 class="text-3xl mb-4">Your listings</h1>
-  
+
   <section>
     <RealtorFilters :filters="filters" />
   </section>
-  
+
   <section v-if="listings.data.length" class="grid grid-cols-1 lg:grid-cols-2 gap-2">
     <Box v-for="(listing) in listings.data" :key="listing.id" :class="{'border-dashed':listing.deleted_at}">
       <div class="flex flex-col md:flex-row gap-2 md:items-center justify-between">
@@ -18,8 +18,8 @@
         </div>
         <section>
           <div class="flex items-center gap-1 text-gray-600 dark:text-gray-300">
-            <a 
-              class="btn-outline text-xs font-medium" 
+            <a
+              class="btn-outline text-xs font-medium"
               :href="route('listing.show',{listing:listing.id})"
               target="_blank"
             >Preview</a>
@@ -27,8 +27,8 @@
             <Link
               v-if="!listing.deleted_at"
               class="btn-outline text-xs font-medium"
-              :href="route('realtor.listing.destroy',{listing:listing.id})" 
-              method="delete" 
+              :href="route('realtor.listing.destroy',{listing:listing.id})"
+              method="delete"
               as="button"
             >
               Delete
@@ -36,8 +36,8 @@
             <Link
               v-else
               class="btn-outline text-xs font-medium"
-              :href="route('realtor.listing.restore',{listing:listing.id})" 
-              method="put" 
+              :href="route('realtor.listing.restore',{listing:listing.id})"
+              method="put"
               as="button"
             >
               Restore
@@ -65,7 +65,7 @@
   </section>
 
   <EmptyState v-else>No listings yet</EmptyState>
-  
+
   <section v-if="listings.data.length" class="w-full flex justify-center mt-4 mb-4">
     <Pagination :links="listings.links" />
   </section>
@@ -74,12 +74,13 @@
 <script setup>
 import Box from '@/Components/UI/Box.vue'
 import Price from '@/Components/Price.vue'
-import ListingSpace from '@/Components/ListingSpace.vue'
 import ListingAddress from '@/Components/ListingAddress.vue'
 import { Link } from '@inertiajs/inertia-vue3'
 import RealtorFilters from '@/Pages/Realtor/Index/Components/RealtorFilters.vue'
 import Pagination from '@/Components/UI/Pagination.vue'
 import EmptyState from '@/Components/UI/EmptyState.vue'
+import ListingSpace from "@/Components/ListingSpace.vue";
+import route from "ziggy-js/src/js";
 
 // Define the props
 const { listings, filters } = defineProps({

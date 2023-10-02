@@ -70,7 +70,7 @@ Route::put('notification/{notification}/seen',NotificationSeenController::class)
 Route::prefix('email')
     ->middleware('auth')
     ->group(function (){
-        
+
         //1. Route to website that informs the user they should be verified,
         //this is automatically opened when user tries to do the action which needs the user to be registered first
         //also user is redirected if he manually inputs the url but is already registered
