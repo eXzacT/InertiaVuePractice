@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ValidateUserRequest;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserAccountController extends Controller
@@ -13,14 +12,9 @@ class UserAccountController extends Controller
         return inertia('UserAccount/Create');
     }
 
-    public function store(Request $request){
-        $user=User::create($request->validate([
-            'name'=>'required',
-            'email'=>'required|email|unique:users',
-            'password'=>'required|min:8|confirmed'
-        ]));
+    public function store(ValidateUserRequest $request){
+        $user=User::create($request->validated());
         Auth::login($user);
-        event(new Registered($user));
 
         return redirect()->route('listing.index')
         ->with('success','Account successfully created!');

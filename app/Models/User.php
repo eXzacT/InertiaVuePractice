@@ -8,12 +8,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Auth\Events\Registered;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
+     *
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -43,6 +45,15 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            if ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail()) {
+                event(new Registered($user));
+            }
+        });
+    }
 
     public function listings():HasMany{
         return $this->hasMany(

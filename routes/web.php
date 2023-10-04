@@ -75,8 +75,8 @@ Route::prefix('email')
         //this is automatically opened when user tries to do the action which needs the user to be registered first
         //also user is redirected if he manually inputs the url but is already registered
         Route::get('verify',[EmailVerificationController::class, 'index'])
-            ->name('verification.notice')
-            ->middleware('redirect.if.verified');
+            ->middleware('redirect.if.verified')
+            ->name('verification.notice');
 
         //2. Sending email verification when a user first registers
         Route::get('verify/{id}/{hash}',[EmailVerificationController::class,'verify'])
