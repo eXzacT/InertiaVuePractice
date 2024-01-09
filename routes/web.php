@@ -24,12 +24,6 @@ use App\Http\Controllers\RealtorListingAcceptOfferController;
 |
 */
 
-//REMINDER
-//we can apply middleware in the constructor or in routes
-/* ->only(['create','store','edit','update','destroy'])->middleware('auth');
-Route::resource('listing',ListingController::class)
-->except(['create','store','edit','update','destroy']); */
-
 //Index Controller
 Route::get('/',[IndexController::class, 'index']);
 Route::get('/hello',[IndexController::class, 'show'])

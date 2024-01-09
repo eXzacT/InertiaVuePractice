@@ -1,23 +1,23 @@
 <template>
   <h1 class="text-3xl mb-4">Your Notifications</h1>
-  
+
   <section v-if="notifications.data.length" class="text-gray-700 dark:text-gray-400">
-    <div 
-      v-for="notification in notifications.data" 
-      :key="notification.id" 
+    <div
+      v-for="notification in notifications.data"
+      :key="notification.id"
       class="border-b border-gray-200 dark:border-gray-800 py-4 flex justify-between items-center"
     >
       <span v-if="notification.type=='App\\Notifications\\OfferMade'">
-        <Price :price="notification.data.amount" /> was made! for 
+        <Price :price="notification.data.amount" /> was made! for
         <Link
-          :href="route('realtor.listing.show',{listing: notification.data.listing_id})" 
+          :href="route('realtor.listing.show',{listing: notification.data.listing_id})"
           class="text-indigo-600 dark:text-indigo-400"
-        >Listing</Link> was made.
+        >Listing</Link>
       </span>
       <div>
         <Link
-          v-if="!notification.read_at" 
-          :href="route('notification.seen', {notification: notification.id})" 
+          v-if="!notification.read_at"
+          :href="route('notification.seen', {notification: notification.id})"
           as="button"
           method="put"
           class="btn-outline text-xs font-medium uppercase"
@@ -30,7 +30,7 @@
   <EmptyState v-else>No notifications yet!</EmptyState>
 
   <section
-    v-if="notifications.data.length" 
+    v-if="notifications.data.length"
     class="w-full flex justify-center mt-8 mb-8"
   >
     <Pagination :links="notifications.links" />
